@@ -1,92 +1,286 @@
-# fmise_back_end
+# fmise_back_end 后端使用指南
 
 
 
-## Getting started
+## 数据类型
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### 1. Category类（枚举类）
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
++ 共5种类型，在传递参数时需要使用枚举名（即==全部大写==）
 
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://git.nju.edu.cn/fmise/fmise_back_end.git
-git branch -M main
-git push -uf origin main
+```java
+//所有枚举类型
+FRUIT("Fruit"),
+VEGETABLE("Vegetable"),
+MEAT("Meat"),
+SEAFOOD("Seafood"),
+SNACK("Snack"),
+OTHER("Other");
 ```
 
-## Integrate with your tools
+### 2. Ingredient类
 
-- [ ] [Set up project integrations](https://git.nju.edu.cn/fmise/fmise_back_end/-/settings/integrations)
+```java
+//所有属性
+Long id;
+String name;
+String quantity;
+//用于标志该用料是否是主要原材料，如西红柿炒鸡蛋中，西红柿和鸡蛋为主要原料，其余如盐、酱油等不是主要原料（不在冰箱中存储
+boolean mainIngredient; 
+```
 
-## Collaborate with your team
+### 3. Food类
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+```java
+//所有属性
+Long id;
+String name;
+//Date格式必须为 YYYY-MM-DD
+Date freshDate;
+String quantity;
+//Category格式字符串必须全部大写
+Category category
+String address
+```
 
-## Test and Deploy
+json格式举例：
 
-Use the built-in continuous integration in GitLab.
+```json
+{
+    "id": 1,
+    "name": "鸡肉",
+    "freshDate": "2023-02-12",
+    "quantity": "3块",
+    "category": "MEAT",
+    "address": "冷冻二层"
+}
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### 4. Menu类
 
-***
+````java
+Long id;
+String image;
+String name;
+List<Ingredient> ingredients;
+List<String> steps;
+````
 
-# Editing this README
+json格式举例：
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+```json
+{
+    "id": 1,
+    "image": "https://example.com/images/menu1.jpg",
+    "name": "水煮牛肉",
+    "ingredients": [
+        {
+            "id": 13,
+            "name": "牛肉",
+            "quantity": "300克",
+            "mainIngredient": true
+        },
+        {
+            "id": 14,
+            "name": "豆芽",
+            "quantity": "100克",
+            "mainIngredient": false
+        },
+        {
+            "id": 15,
+            "name": "姜",
+            "quantity": "适量",
+            "mainIngredient": false
+        },
+        {
+            "id": 16,
+            "name": "辣椒",
+            "quantity": "6个",
+            "mainIngredient": false
+        }
+    ],
+    "steps": [
+        "牛肉切片，用料酒、盐、生粉腌制10分钟",
+        "锅中放油，爆香葱姜蒜和干红辣椒",
+        "放入豆芽和泡姜煸炒",
+        "加入适量清水，大火煮开",
+        "放入牛肉片，煮至变色捞出",
+        "最后倒入烧开的油浇在牛肉片上即可"
+    ]
+}
+```
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### 
 
-## Name
-Choose a self-explaining name for your project.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+## 接口说明
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### 1. FoodController
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+#### 1.1 GET:查询所有食物（按保质期排序）
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+路径：http://localhost:8080/food/foods-by-date
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+返回类型：List\<Food>
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+#### 1.2 GET:查询特定种类的食物
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+路径：http://localhost:8080/food/foods-by-category/{category}
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+返回类型：List\<Food>
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+示例：
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+```java
+http://localhost:8080/food/foods-by-category/FRUIT
+```
 
-## License
-For open source projects, say how it is licensed.
+#### 1.3 GET:输入字符串查询相关食物
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+路径：http://localhost:8080/food/foods-by-input/{input}
+
+返回类型：List\<Food>
+
+示例：
+
+```java
+//会查出含“鸡”的所有食物，鸡肉、鸡蛋等
+http://localhost:8080/food/foods-by-input/鸡
+```
+
+#### 1.4 GET:根据ID查找食物
+
+路径：http://localhost:8080/food/food-by/{foodId}
+
+返回类型：Food
+
+示例：
+
+```java
+//查询id为1的食物
+http://localhost:8080/food/foods-by-category/1
+```
+
+#### 1.5 POST:添加食物
+
+路径：http://localhost:8080/food/add-food
+
+返回类型：
+
+```json
+//成功
+{
+    "message": "Food successfully add",
+    "code": 200,
+    "error": false
+}
+```
+
+示例：
+
+```java
+http://localhost:8080/food/add-food
+```
+
+消息体类型见food类型的json示例
+
+#### 1.6 PUT:编辑食物信息
+
+路径：http://localhost:8080/food/edit-food/{foodId}
+
+示例：
+
+```java
+http://localhost:8080/food/edit-food/1
+```
+
+消息体类型见food类型的json示例
+
+返回类型：
+
+```json
+//成功
+{
+    "message": "Food successfully edit",
+    "code": 201,
+    "error": false
+}
+```
+
+
+
+#### 1.7 DELETE:删除食物
+
+路径：http://localhost:8080/food/delete-food/{foodId}
+
+示例：
+
+```java
+http://localhost:8080/food/delete-food/1
+```
+
+返回类型：
+
+```json
+//成功
+{
+    "message": "Food successfully delete",
+    "code": 204,
+    "error": false
+}
+```
+
+
+
+### 2. MenuController
+
+#### 2.1 GET:查询所有菜谱
+
+路径：http://localhost:8080/menu/all-menu
+
+#### 2.2 GET:查询推荐菜谱
+
+路径：http://localhost:8080/menu/recommend-menu
+
+#### 2.4 GET:根据ID查找菜谱
+
+路径：http://localhost:8080/menu/menu-by/{menuId}
+示例：
+
+```java
+http://localhost:8080/menu/menu-by/1
+```
+
+#### 2.5 POST:添加菜谱（后端自用）
+
+路径：http://localhost:8080/menu/create-menu
+
+示例：
+
+```java
+http://localhost:8080/menu/create-menu
+```
+
+消息体类型见menu类型的json示例
+
+#### 2.6 PUT:编辑菜谱（后端自用）
+
+路径：http://localhost:8080/menu/update-menu/{id}
+
+示例：
+
+```java
+http://localhost:8080/menu/update-menu/1
+```
+
+消息体类型见menu类型的json示例
+
+#### 2.7 DELETE:删除菜谱（后端自用）
+
+路径：http://localhost:8080/menu/delete-menu/{id}
+
+```java
+http://localhost:8080/menu/delete-menu/1
+```
+

@@ -27,7 +27,7 @@ public class FoodController {
     }
 
     //根据食物类型展示
-    @GetMapping("/foods-by-category")
+    @GetMapping("/foods-by-category/{category}")
     public ResponseEntity<List<FoodDTO>> getFoodsBtCategory(@PathVariable(value = "category") Category category){
         return ResponseEntity.ok(foodService.getFoodsByCategory(category));
     }
