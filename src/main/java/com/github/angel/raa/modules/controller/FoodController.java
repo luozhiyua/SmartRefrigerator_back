@@ -1,6 +1,7 @@
 package com.github.angel.raa.modules.controller;
 
 import com.github.angel.raa.modules.dto.FoodDTO;
+import com.github.angel.raa.modules.models.Category;
 import com.github.angel.raa.modules.service.interfaces.FoodService;
 import com.github.angel.raa.modules.utils.Response;
 import jakarta.validation.Valid;
@@ -23,6 +24,18 @@ public class FoodController {
     @GetMapping("/foods-by-date")
     public ResponseEntity<List<FoodDTO>> getFoodsByDate(){
         return ResponseEntity.ok(foodService.getFoodsByDate());
+    }
+
+    //根据食物类型展示
+    @GetMapping("/foods-by-category")
+    public ResponseEntity<List<FoodDTO>> getFoodsBtCategory(@PathVariable(value = "category") Category category){
+        return ResponseEntity.ok(foodService.getFoodsByCategory(category));
+    }
+
+    //模糊搜索
+    @GetMapping("foods-by-input/{input}")
+    public ResponseEntity<List<FoodDTO>> getFoodsByInput(@PathVariable(value = "input") String input){
+        return ResponseEntity.ok(foodService.getFoodByInput(input));
     }
 
     @GetMapping("/food-by/{foodId}")

@@ -2,6 +2,7 @@ package com.github.angel.raa.modules.service.interfaces;
 
 import com.github.angel.raa.modules.dto.FoodDTO;
 import com.github.angel.raa.modules.dto.MenuDTO;
+import com.github.angel.raa.modules.models.Category;
 import com.github.angel.raa.modules.utils.Response;
 import lombok.NonNull;
 
@@ -12,6 +13,10 @@ public interface FoodService {
     List<FoodDTO> getAllFoods();
 
     List<FoodDTO> getFoodsByDate();
+
+    List<FoodDTO> getFoodsByCategory(Category category);
+
+    List<FoodDTO> getFoodByInput(String input);
 
     FoodDTO getFoodItemsById(@NonNull Long id);
 

@@ -24,6 +24,13 @@ public class MenuController {
     public ResponseEntity<List<MenuDTO>> getAllMenus() {
         return ResponseEntity.ok(menuService.getAllMenus());
     }
+
+    //推荐菜谱
+    @GetMapping("/recommend-menu")
+    public ResponseEntity<List<MenuDTO>> getRecommendMenus(){
+        return ResponseEntity.ok(menuService.getAvailableMenus());
+    }
+
     @GetMapping("/menu-by/{menuId}")
     public ResponseEntity<MenuDTO> getMenuById(@Valid @PathVariable(value = "menuId") @Min(1) Long menuId) {
         return ResponseEntity.ok(menuService.getMenuById(menuId));

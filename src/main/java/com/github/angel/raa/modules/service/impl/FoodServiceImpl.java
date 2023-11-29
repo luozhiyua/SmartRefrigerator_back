@@ -2,6 +2,7 @@ package com.github.angel.raa.modules.service.impl;
 
 import com.github.angel.raa.modules.dto.FoodDTO;
 import com.github.angel.raa.modules.exception.FoodNotFoundException;
+import com.github.angel.raa.modules.models.Category;
 import com.github.angel.raa.modules.models.Food;
 import com.github.angel.raa.modules.repository.FoodRepository;
 import com.github.angel.raa.modules.service.interfaces.FoodService;
@@ -38,6 +39,24 @@ public class FoodServiceImpl implements FoodService {
         return foodRepository.findAll()
                 .stream()
                 .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
+                .toList();
+    }
+
+    @Override
+    public List<FoodDTO> getFoodByInput(String input) {
+        return foodRepository.findAll()
+                .stream()
+                .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
+                .filter(food -> food.getName().contains(input))
+                .toList();
+    }
+
+    @Override
+    public List<FoodDTO> getFoodsByCategory(Category category) {
+        return foodRepository.findAll()
+                .stream()
+                .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
+                .filter(food -> food.getCategory().equals(category))
                 .toList();
     }
 

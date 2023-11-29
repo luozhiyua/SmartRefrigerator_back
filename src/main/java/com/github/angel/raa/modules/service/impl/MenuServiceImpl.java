@@ -6,6 +6,7 @@ import com.github.angel.raa.modules.exception.MenuNotFoundException;
 import com.github.angel.raa.modules.models.Ingredient;
 import com.github.angel.raa.modules.models.Menu;
 import com.github.angel.raa.modules.repository.MenuRepository;
+import com.github.angel.raa.modules.service.interfaces.FoodService;
 import com.github.angel.raa.modules.service.interfaces.MenuService;
 import com.github.angel.raa.modules.utils.Response;
 import lombok.NonNull;
@@ -13,12 +14,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class MenuServiceImpl implements MenuService {
     private final MenuRepository menuRepository;
+    private final FoodService foodService;
 
     @Override
     @Transactional(readOnly = true)
@@ -27,6 +30,26 @@ public class MenuServiceImpl implements MenuService {
                 .stream()
                 .map((dto) -> new MenuDTO(dto.getId(), dto.getImage(), dto.getName(), dto.getIngredients(), dto.getSteps()))
                 .toList();
+    }
+
+    @Override
+    public List<MenuDTO> getAvailableMenus() {
+        List<String> foods = foodService.getAllFoods()
+                .stream()
+                .map(FoodDTO :: getName)
+                .toList();
+        List<MenuDTO> res = new ArrayList<>();
+        for (MenuDTO menu : getAllMenus()){
+            List<String> needs = menu.getIngredients()
+                    .stream()
+                    .filter(Ingredient::isMainIngredient)
+                    .map(Ingredient :: getName)
+                    .toList();
+            if (foods.containsAll(needs)){
+                res.add(menu);
+            }
+        }
+        return res;
     }
 
     @Override

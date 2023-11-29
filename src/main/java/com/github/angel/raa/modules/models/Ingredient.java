@@ -20,6 +20,8 @@ public class Ingredient implements Serializable {
     String name;
     @Column(name = "ingredientQuantity")
     String quantity;
+    @Column(name = "mainIngredient")
+    boolean mainIngredient;
     @JsonBackReference
     @ManyToOne()
     @JoinColumn(name = "menu_id", nullable = false)

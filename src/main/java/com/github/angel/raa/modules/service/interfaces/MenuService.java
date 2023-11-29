@@ -10,6 +10,8 @@ public interface MenuService {
 
     List<MenuDTO> getAllMenus();
 
+    List<MenuDTO> getAvailableMenus();
+
     MenuDTO getMenuById(@NonNull Long id);
 
     Response saveMenu(@NonNull MenuDTO body);
