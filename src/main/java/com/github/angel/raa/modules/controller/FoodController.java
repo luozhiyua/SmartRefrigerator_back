@@ -33,7 +33,7 @@ public class FoodController {
     }
 
     //模糊搜索
-    @GetMapping("foods-by-input/{input}")
+    @GetMapping("/foods-by-input/{input}")
     public ResponseEntity<List<FoodDTO>> getFoodsByInput(@PathVariable(value = "input") String input){
         return ResponseEntity.ok(foodService.getFoodByInput(input));
     }

@@ -2,70 +2,86 @@ package com.github.angel.raa.modules.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.angel.raa.modules.dto.ChatDTO;
-import com.github.angel.raa.modules.service.interfaces.ChatService;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 
 @Service
-public class ChatServiceImpl implements ChatService {
-
-    @Override
-    public ChatDTO generateAnswer(ChatDTO chatDTO) {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            String url = "http://10.58.0.2:6678/v1/chat/completions";
-            HttpPost httpPost = new HttpPost(url);
-
-            // 设置请求头
-            httpPost.setHeader("Content-Type", "application/json");
-            httpPost.setHeader("Authorization", "Bearer your_key");
-
-            // 获取前端传来的问题字符串
-            String question = chatDTO.getQuestion();
-
-            // 设置请求体
-            String requestBody = "{" +
-                    "\"model\": \"xxx\"," +
-                    "\"max_tokens\": 2048," +
-                    "\"top_p\": 1," +
-                    "\"temperature\": 1," +
-                    "\"messages\": [" +
-                    "{" +
-                    "\"role\": \"system\"," +
-                    "\"content\": \"You are a helpful assistant.\"" +
-                    "}," +
-                    "{" +
-                    "\"role\": \"user\"," +
-                    "\"content\":" + "\"" + question + "\"" +
-                    "}" +
-                    "]" +
-                    "}";
-            httpPost.setEntity(new StringEntity(requestBody));
-
-            HttpResponse response = httpClient.execute(httpPost);
-
-            // 处理响应
-            String responseBody = EntityUtils.toString(response.getEntity());
-            System.out.println("Response: " + responseBody);
-
-            // 使用 Jackson 解析 JSON
+@RequiredArgsConstructor
+public class ChatServiceImpl {
+    public String Answer(String request) throws IOException {
+        String url = "http://10.58.0.2:6678/v1/chat/completions";
+        String userQue_json = request;
+        String userQue = "";
+        try {
             ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(responseBody);
+            JsonNode jsonNode = objectMapper.readTree(userQue_json);
+            JsonNode userQuesNode = jsonNode.get("userQues");
 
-            // 提取生成的消息内容
-            String answer = jsonNode.get("choices").get(0).get("message").get("content").asText();
-            chatDTO.setAnswer(answer);
-        } catch (IOException e) {
+            if (userQuesNode.isArray() && userQuesNode.size() > 0) {
+                String firstValue = userQuesNode.get(0).asText();
+                userQue = firstValue;
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return chatDTO;
+        String requestBody = "{\"model\":\"xxx\",\"max_tokens\":2048,\"top_p\":1,\"temperature\":1,\"messages\":[{\"role\":\"system\",\"content\":\"You are a helpful assistant.\"},{\"role\":\"user\",\"content\":\"" + userQue + "\"}]}";
+
+        URL apiUrl = new URL(url);
+        HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Authorization", "Bearer your_key");
+        connection.setDoOutput(true);
+
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(requestBody.getBytes());
+        outputStream.flush();
+        outputStream.close();
+
+        int responseCode = connection.getResponseCode();
+        StringBuilder response = new StringBuilder();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
+
+        } else {
+            System.out.println("HTTP POST request failed. Response Code: " + responseCode);
+        }
+
+        connection.disconnect();
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(response.toString());
+
+            JsonNode choicesNode = rootNode.get("choices");
+            if (choicesNode != null && choicesNode.isArray()) {
+                for (JsonNode choiceNode : choicesNode) {
+                    JsonNode contentNode = choiceNode.path("message").path("content");
+                    if (contentNode.isTextual()) {
+                        String content = contentNode.asText();
+                        return content;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return response.toString();
     }
 }
