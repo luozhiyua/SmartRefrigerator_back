@@ -36,6 +36,11 @@ public class MenuController {
         return ResponseEntity.ok(menuService.getMenuById(menuId));
     }
 
+    @GetMapping("/menus-by-input/{input}")
+    public ResponseEntity<List<MenuDTO>> getMenusByInput(@PathVariable(value = "input") String input){
+        return ResponseEntity.ok(menuService.getMenusByInput(input));
+    }
+
     @PostMapping("/create-menu")
     public ResponseEntity<Response> createMenu(@Valid @RequestBody MenuDTO menu) {
         return ResponseEntity.status(HttpStatus.CREATED).body(menuService.saveMenu(menu));

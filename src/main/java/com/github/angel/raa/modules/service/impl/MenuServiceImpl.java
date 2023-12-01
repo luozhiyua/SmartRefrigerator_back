@@ -18,7 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +59,28 @@ public class MenuServiceImpl implements MenuService {
             }
         }
         return res;
+    }
+
+    @Override
+    public List<MenuDTO> getMenusByInput(@NonNull String input) {
+//        List<MenuDTO> res = new ArrayList<>();
+        List<MenuDTO> res1 = getAllMenus()
+                .stream()
+                .filter(t -> t.getName().contains(input))
+                .toList();
+        List<MenuDTO> res2 = getAllMenus()
+                .stream()
+                .filter(t -> t.getIngredients()
+                        .stream()
+                        .filter(Ingredient::isMainIngredient)
+                        .map(Ingredient::getName)
+                        .toList().contains(input))
+                .toList();
+
+        return Stream.of(res1, res2)
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override

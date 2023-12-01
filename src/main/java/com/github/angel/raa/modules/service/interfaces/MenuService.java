@@ -12,6 +12,8 @@ public interface MenuService {
 
     List<MenuDTO> getAvailableMenus();
 
+    List<MenuDTO> getMenusByInput(@NonNull String input);
+
     MenuDTO getMenuById(@NonNull Long id);
 
     Response saveMenu(@NonNull MenuDTO body);
