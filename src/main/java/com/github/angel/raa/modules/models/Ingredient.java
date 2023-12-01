@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @NoArgsConstructor
@@ -14,7 +15,10 @@ import java.io.Serializable;
 @Data
 @Entity
 public class Ingredient implements Serializable {
+//    @Serial
+//    private static final long serialVersionUID = 2L;
     @Id
+//    @GeneratedValue
     Long id;
     @Column(name = "ingredientName")
     String name;

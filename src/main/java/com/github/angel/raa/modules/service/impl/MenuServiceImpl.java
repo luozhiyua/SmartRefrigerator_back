@@ -1,12 +1,15 @@
 package com.github.angel.raa.modules.service.impl;
 
 import com.github.angel.raa.modules.dto.FoodDTO;
+//import com.github.angel.raa.modules.dto.IngredientDTO;
 import com.github.angel.raa.modules.dto.MenuDTO;
 import com.github.angel.raa.modules.exception.MenuNotFoundException;
 import com.github.angel.raa.modules.models.Ingredient;
 import com.github.angel.raa.modules.models.Menu;
+import com.github.angel.raa.modules.repository.IngredientRepository;
 import com.github.angel.raa.modules.repository.MenuRepository;
 import com.github.angel.raa.modules.service.interfaces.FoodService;
+import com.github.angel.raa.modules.service.interfaces.IngredientService;
 import com.github.angel.raa.modules.service.interfaces.MenuService;
 import com.github.angel.raa.modules.utils.Response;
 import lombok.NonNull;
@@ -21,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MenuServiceImpl implements MenuService {
     private final MenuRepository menuRepository;
+    private final IngredientService ingredientService;
     private final FoodService foodService;
 
     @Override
@@ -28,7 +32,9 @@ public class MenuServiceImpl implements MenuService {
     public List<MenuDTO> getAllMenus() {
         return menuRepository.findAll()
                 .stream()
-                .map((dto) -> new MenuDTO(dto.getId(), dto.getImage(), dto.getName(), dto.getIngredients(), dto.getSteps()))
+                .map((dto) -> new MenuDTO(dto.getId(), dto.getImage(), dto.getName(),
+                        dto.getIngredients(),
+                        dto.getSteps()))
                 .toList();
     }
 
@@ -73,7 +79,9 @@ public class MenuServiceImpl implements MenuService {
         Menu menu = menuRepository.findById(id).orElseThrow(() -> new MenuNotFoundException("Menu not found ", true));
         menu.setImage(body.getImage());
         menu.setName(body.getName());
-        menu.setIngredients(body.getIngredients());
+        menu.setIngredients(
+                body.getIngredients()
+        );
         menu.setSteps(body.getSteps());
         for (Ingredient i : menu.getIngredients()){
             i.setMenu(menu);
@@ -95,7 +103,9 @@ public class MenuServiceImpl implements MenuService {
         dto.setMenuId(menu.getId());
         dto.setImage(menu.getImage());
         dto.setName(menu.getName());
-        dto.setIngredients(menu.getIngredients());
+        dto.setIngredients(
+                menu.getIngredients()
+        );
         dto.setSteps(menu.getSteps());
         return dto;
     }
@@ -105,11 +115,24 @@ public class MenuServiceImpl implements MenuService {
         menu.setId(dto.getMenuId());
         menu.setImage(dto.getImage());
         menu.setName(dto.getName());
-        menu.setIngredients(dto.getIngredients());
+        menu.setIngredients(
+                dto.getIngredients()
+
+        );
         menu.setSteps(dto.getSteps());
         List<Ingredient> ingredients = dto.getIngredients();
+
+        List<Ingredient> all = ingredientService.getAllIngredient();
+        Long lastIndex = 0L;
+        if (all.size() > 0){
+            lastIndex = all.get(all.size() - 1).getId();
+        }
+        lastIndex++;
+
         for (Ingredient i: ingredients){
             i.setMenu(menu);
+            i.setId(lastIndex);
+            lastIndex++;
         }
         return menu;
     }
