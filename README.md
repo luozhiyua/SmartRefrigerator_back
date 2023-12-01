@@ -252,7 +252,18 @@ http://localhost:8080/food/delete-food/1
 http://localhost:8080/menu/menu-by/1
 ```
 
-#### 2.5 POST:添加菜谱（后端自用）
+#### 2.5 GET:根据用户输入查找菜谱
+
+路径：http://localhost:8080/menu/menus-by-input/{input}
+
+示例：
+
+```java
+//会检索出所有名字中带“鸡”的菜谱以及用料中含“鸡”的菜谱
+http://localhost:8080/menu/menus-by-input/鸡
+```
+
+#### 2.6 POST:添加菜谱（后端自用）
 
 路径：http://localhost:8080/menu/create-menu
 
@@ -264,7 +275,7 @@ http://localhost:8080/menu/create-menu
 
 消息体类型见menu类型的json示例
 
-#### 2.6 PUT:编辑菜谱（后端自用）
+#### 2.7 PUT:编辑菜谱（后端自用）
 
 路径：http://localhost:8080/menu/update-menu/{id}
 
@@ -276,7 +287,7 @@ http://localhost:8080/menu/update-menu/1
 
 消息体类型见menu类型的json示例
 
-#### 2.7 DELETE:删除菜谱（后端自用）
+#### 2.8 DELETE:删除菜谱（后端自用）
 
 路径：http://localhost:8080/menu/delete-menu/{id}
 
