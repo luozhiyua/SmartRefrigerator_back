@@ -14,6 +14,8 @@ public interface FoodService {
 
     List<FoodDTO> getFoodsByDate();
 
+    List<FoodDTO> getFoodsByName();
+
     List<FoodDTO> getFoodsByCategory(Category category);
 
     List<FoodDTO> getFoodByInput(String input);

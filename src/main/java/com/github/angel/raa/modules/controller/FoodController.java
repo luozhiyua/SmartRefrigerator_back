@@ -26,6 +26,11 @@ public class FoodController {
         return ResponseEntity.ok(foodService.getFoodsByDate());
     }
 
+    @GetMapping("/foods-by-name")
+    public ResponseEntity<List<FoodDTO>> getFoodsByName(){
+        return ResponseEntity.ok(foodService.getFoodsByName());
+    }
+
     //根据食物类型展示
     @GetMapping("/foods-by-category/{category}")
     public ResponseEntity<List<FoodDTO>> getFoodsBtCategory(@PathVariable(value = "category") Category category){

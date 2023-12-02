@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -30,6 +31,25 @@ public class FoodServiceImpl implements FoodService {
                 .toList();
         ArrayList<FoodDTO> convert = new ArrayList<>(foodList);
         Collections.sort(convert);
+        return convert.stream().toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<FoodDTO> getFoodsByName() {
+        List<FoodDTO> foodList = foodRepository.findAll()
+                .stream()
+                .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
+                .toList();
+        ArrayList<FoodDTO> convert = new ArrayList<>(foodList);
+        convert.sort(new Comparator<FoodDTO>() {
+            @Override
+            public int compare(FoodDTO food1, FoodDTO food2) {
+                String name1 = food1.getName().toLowerCase();
+                String name2 = food2.getName().toLowerCase();
+                return name1.compareTo(name2);
+            }
+        });
         return convert.stream().toList();
     }
 
