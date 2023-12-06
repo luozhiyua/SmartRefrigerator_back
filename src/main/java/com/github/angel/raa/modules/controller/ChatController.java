@@ -18,6 +18,7 @@ public class ChatController{
 
     @PostMapping("/ques")
     public String processString(@RequestBody String request) throws IOException {
+        request = request.substring(13, request.length() -2);
         String processedString = qaService.Answer(request);
         System.out.println(processedString);
         return processedString;
