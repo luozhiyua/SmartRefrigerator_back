@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @Validated
@@ -21,26 +22,26 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class FoodController {
     private final FoodService foodService;
-    @GetMapping("/foods-by-date")
-    public ResponseEntity<List<FoodDTO>> getFoodsByDate(){
-        return ResponseEntity.ok(foodService.getFoodsByDate());
+    @GetMapping("/foods-by-date/{userId}")
+    public ResponseEntity<List<FoodDTO>> getFoodsByDate(@PathVariable(value = "userId") Long userId){
+        return ResponseEntity.ok(foodService.getFoodsByDate(userId));
     }
 
-    @GetMapping("/foods-by-name")
-    public ResponseEntity<List<FoodDTO>> getFoodsByName(){
-        return ResponseEntity.ok(foodService.getFoodsByName());
+    @GetMapping("/foods-by-name/{userId}")
+    public ResponseEntity<List<FoodDTO>> getFoodsByName(@PathVariable(value = "userId") Long userId){
+        return ResponseEntity.ok(foodService.getFoodsByName(userId));
     }
 
     //根据食物类型展示
-    @GetMapping("/foods-by-category/{category}")
-    public ResponseEntity<List<FoodDTO>> getFoodsBtCategory(@PathVariable(value = "category") Category category){
-        return ResponseEntity.ok(foodService.getFoodsByCategory(category));
+    @GetMapping("/foods-by-category/{category}/{userId}")
+    public ResponseEntity<List<FoodDTO>> getFoodsBtCategory(@PathVariable(value = "category") Category category, @PathVariable(value = "userId") Long userId){
+        return ResponseEntity.ok(foodService.getFoodsByCategory(category, userId));
     }
 
     //模糊搜索
-    @GetMapping("/foods-by-input/{input}")
-    public ResponseEntity<List<FoodDTO>> getFoodsByInput(@PathVariable(value = "input") String input){
-        return ResponseEntity.ok(foodService.getFoodByInput(input));
+    @GetMapping("/foods-by-input/{input}/{userId}")
+    public ResponseEntity<List<FoodDTO>> getFoodsByInput(@PathVariable(value = "input") String input, @PathVariable(value = "userId") Long userId) throws UnsupportedEncodingException {
+        return ResponseEntity.ok(foodService.getFoodByInput(input, userId));
     }
 
     @GetMapping("/food-by/{foodId}")

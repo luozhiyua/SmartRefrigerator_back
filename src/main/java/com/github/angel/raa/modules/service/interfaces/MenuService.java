@@ -10,7 +10,7 @@ public interface MenuService {
 
     List<MenuDTO> getAllMenus();
 
-    List<MenuDTO> getAvailableMenus();
+    List<MenuDTO> getAvailableMenus(Long userId);
 
     List<MenuDTO> getMenusByInput(@NonNull String input);
 

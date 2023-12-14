@@ -12,10 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -24,22 +25,29 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<FoodDTO> getFoodsByDate() {
+    public List<FoodDTO> getFoodsByDate(Long userId) {
         List<FoodDTO> foodList = foodRepository.findAll()
                 .stream()
-                .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
+                .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getUserId(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
+                .filter(food -> Objects.equals(food.getUserId(), userId.toString()))
                 .toList();
         ArrayList<FoodDTO> convert = new ArrayList<>(foodList);
-        Collections.sort(convert);
+        convert.sort(new Comparator<FoodDTO>() {
+            @Override
+            public int compare(FoodDTO food1, FoodDTO food2) {
+                return (food1.getFreshDate()).compareTo(food2.getFreshDate());
+            }
+        });
         return convert.stream().toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<FoodDTO> getFoodsByName() {
+    public List<FoodDTO> getFoodsByName(Long userId) {
         List<FoodDTO> foodList = foodRepository.findAll()
                 .stream()
-                .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
+                .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getUserId(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
+                .filter(food -> Objects.equals(food.getUserId(), userId.toString()))
                 .toList();
         ArrayList<FoodDTO> convert = new ArrayList<>(foodList);
         convert.sort(new Comparator<FoodDTO>() {
@@ -55,27 +63,30 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<FoodDTO> getAllFoods() {
+    public List<FoodDTO> getAllFoods(Long userId) {
         return foodRepository.findAll()
                 .stream()
-                .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
+                .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getUserId(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
                 .toList();
     }
 
     @Override
-    public List<FoodDTO> getFoodByInput(String input) {
+    public List<FoodDTO> getFoodByInput(String input, Long userId) throws UnsupportedEncodingException {
+        System.out.println(URLDecoder.decode(input, StandardCharsets.UTF_8));
         return foodRepository.findAll()
                 .stream()
-                .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
-                .filter(food -> food.getName().contains(input))
+                .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getUserId(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
+                .filter(food -> Objects.equals(food.getUserId(), userId.toString()))
+                .filter(food -> food.getName().contains(URLDecoder.decode(input, StandardCharsets.UTF_8)))
                 .toList();
     }
 
     @Override
-    public List<FoodDTO> getFoodsByCategory(Category category) {
+    public List<FoodDTO> getFoodsByCategory(Category category, Long userId) {
         return foodRepository.findAll()
                 .stream()
-                .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
+                .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getUserId(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
+                .filter(food -> Objects.equals(food.getUserId(), userId.toString()))
                 .filter(food -> food.getCategory().equals(category))
                 .toList();
     }
@@ -90,6 +101,7 @@ public class FoodServiceImpl implements FoodService {
     public Response editFoodItem(@NonNull Long id, FoodDTO body) {
         Food food = foodRepository.findById(id).orElseThrow(() -> new FoodNotFoundException("Food not found ", true));
         food.setName(body.getName());
+        food.setUserId(body.getUserId());
         food.setFreshDate(body.getFreshDate());
         food.setCategory(body.getCategory());
         food.setQuantity(body.getQuantity());
@@ -102,7 +114,7 @@ public class FoodServiceImpl implements FoodService {
     public Response addFoodItem(@NonNull FoodDTO body) {
         Food food = convertToEntity(body);
         foodRepository.save(food);
-        return Response.builder().message("Food successfully add").code(200).error(false).build();
+        return Response.builder().message("Food successfully add").code(201).error(false).build();
     }
 
     @Override
@@ -116,6 +128,7 @@ public class FoodServiceImpl implements FoodService {
         FoodDTO dto = new FoodDTO();
         dto.setId(food.getId());
         dto.setName(food.getName());
+        food.setUserId(dto.getUserId());
         dto.setFreshDate(food.getFreshDate());
         dto.setQuantity(food.getQuantity());
         dto.setCategory(food.getCategory());
@@ -127,6 +140,7 @@ public class FoodServiceImpl implements FoodService {
         Food food = new Food();
         food.setId(dto.getId());
         food.setName(dto.getName());
+        food.setUserId(dto.getUserId());
         food.setFreshDate(dto.getFreshDate());
         food.setQuantity(dto.getQuantity());
         food.setCategory(dto.getCategory());

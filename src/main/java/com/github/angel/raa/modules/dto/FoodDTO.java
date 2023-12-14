@@ -22,6 +22,8 @@ public class FoodDTO implements Serializable, Comparable<FoodDTO> {
     private Long id;
     @NotBlank(message = "name")
     private String name;
+    @NotBlank(message = "userId")
+    private String userId;
     @NotNull(message = "freshDate")
     private Date freshDate;
     @NotBlank(message = "quantity")

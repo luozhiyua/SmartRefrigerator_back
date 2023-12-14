@@ -24,6 +24,8 @@ public class Food implements Serializable {
     private Long id;
     @Column(name = "name")
     private String name;
+    @Column
+    private String userId;
     @DateTimeFormat
     @Column
     private Date freshDate;
@@ -33,5 +35,4 @@ public class Food implements Serializable {
     private Category category;
     @Column
     private String address;
-
 }

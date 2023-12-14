@@ -6,19 +6,20 @@ import com.github.angel.raa.modules.models.Category;
 import com.github.angel.raa.modules.utils.Response;
 import lombok.NonNull;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public interface FoodService {
 
-    List<FoodDTO> getAllFoods();
+    List<FoodDTO> getAllFoods(Long userId);
 
-    List<FoodDTO> getFoodsByDate();
+    List<FoodDTO> getFoodsByDate(Long userId);
 
-    List<FoodDTO> getFoodsByName();
+    List<FoodDTO> getFoodsByName(Long userId);
 
-    List<FoodDTO> getFoodsByCategory(Category category);
+    List<FoodDTO> getFoodsByCategory(Category category, Long userId);
 
-    List<FoodDTO> getFoodByInput(String input);
+    List<FoodDTO> getFoodByInput(String input, Long userId) throws UnsupportedEncodingException;
 
     FoodDTO getFoodItemsById(@NonNull Long id);
 
