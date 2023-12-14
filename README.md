@@ -126,7 +126,7 @@ json格式举例（同样，id可写可不写,菜谱list略）：
 ```json
 {
     "id": 1,
-    "username": "张三",
+    "username": "13012341234",
     "password":"12345"
 }
 ```
@@ -347,7 +347,7 @@ http://localhost:8080/menu/menus-by-collect/1
 
 ```json
 {
-    "username": "张三",
+    "username": "13012341234",
     "password":"12345"
 }
 ```

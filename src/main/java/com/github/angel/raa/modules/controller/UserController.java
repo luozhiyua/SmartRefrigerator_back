@@ -23,7 +23,7 @@ public class UserController {
     @Autowired
     private UserServiceImpl userService;
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<Long> userLogin(@Valid @RequestBody UserDTO user){
         Long userId = userService.login(user);
         if(userId == -1) {
