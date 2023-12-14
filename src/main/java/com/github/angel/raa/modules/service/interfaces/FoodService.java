@@ -19,7 +19,7 @@ public interface FoodService {
 
     List<FoodDTO> getFoodsByCategory(Category category, Long userId);
 
-    List<FoodDTO> getFoodByInput(String input, Long userId) throws UnsupportedEncodingException;
+    List<FoodDTO> getFoodByInput(String input, Long userId);
 
     FoodDTO getFoodItemsById(@NonNull Long id);
 

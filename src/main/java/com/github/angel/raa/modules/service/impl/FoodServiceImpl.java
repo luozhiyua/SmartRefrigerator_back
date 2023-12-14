@@ -71,7 +71,7 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
-    public List<FoodDTO> getFoodByInput(String input, Long userId) throws UnsupportedEncodingException {
+    public List<FoodDTO> getFoodByInput(String input, Long userId){
         System.out.println(URLDecoder.decode(input, StandardCharsets.UTF_8));
         return foodRepository.findAll()
                 .stream()

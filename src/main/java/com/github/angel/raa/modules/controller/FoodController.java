@@ -40,7 +40,7 @@ public class FoodController {
 
     //模糊搜索
     @GetMapping("/foods-by-input/{input}/{userId}")
-    public ResponseEntity<List<FoodDTO>> getFoodsByInput(@PathVariable(value = "input") String input, @PathVariable(value = "userId") Long userId) throws UnsupportedEncodingException {
+    public ResponseEntity<List<FoodDTO>> getFoodsByInput(@PathVariable(value = "input") String input, @PathVariable(value = "userId") Long userId){
         return ResponseEntity.ok(foodService.getFoodByInput(input, userId));
     }
 
