@@ -118,9 +118,10 @@ json格式举例：
 Long id;
 private String username;
 private String password;
+private List<Menu> collectedMenus;
 ````
 
-json格式举例（同样，id可写可不写）：
+json格式举例（同样，id可写可不写,菜谱list略）：
 
 ```json
 {
@@ -314,8 +315,27 @@ http://localhost:8080/menu/update-menu/1
 ```java
 http://localhost:8080/menu/delete-menu/1
 ```
+#### 2.9 PUT:收藏菜谱
 
+路径：http://localhost:8080/menu/collect-menu/{id}/{userId}
 
+```java
+http://localhost:8080/menu/collect-menu/1/1
+```
+#### 2.10 PUT:取消菜谱收藏
+
+路径：http://localhost:8080/menu/uncollect-menu/{id}/{userId}
+
+```java
+http://localhost:8080/menu/uncollect-menu/1/1
+```
+#### 2.11 GET:查询收藏菜谱
+
+路径：http://localhost:8080/menu/menus-by-collect/{userId}
+
+```java
+http://localhost:8080/menu/menus-by-collect/1
+```
 
 ### 3. UserController
 

@@ -12,6 +12,8 @@ public interface MenuService {
 
     List<MenuDTO> getAvailableMenus(Long userId);
 
+    List<MenuDTO> getMenusByCollect(Long userId);
+
     List<MenuDTO> getMenusByInput(@NonNull String input);
 
     MenuDTO getMenuById(@NonNull Long id);
@@ -19,6 +21,9 @@ public interface MenuService {
     Response saveMenu(@NonNull MenuDTO body);
 
     Response updateMenu(@NonNull Long id, MenuDTO body);
+
+    Response collectMenu(@NonNull Long id, Long userId);
+    Response uncollectMenu(@NonNull Long id, Long userId);
 
     Response deleteMenu(@NonNull Long id);
 

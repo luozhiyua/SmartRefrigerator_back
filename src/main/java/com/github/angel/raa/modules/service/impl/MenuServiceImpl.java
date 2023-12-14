@@ -6,8 +6,10 @@ import com.github.angel.raa.modules.dto.MenuDTO;
 import com.github.angel.raa.modules.exception.MenuNotFoundException;
 import com.github.angel.raa.modules.models.Ingredient;
 import com.github.angel.raa.modules.models.Menu;
+import com.github.angel.raa.modules.models.User;
 import com.github.angel.raa.modules.repository.IngredientRepository;
 import com.github.angel.raa.modules.repository.MenuRepository;
+import com.github.angel.raa.modules.repository.UserRepository;
 import com.github.angel.raa.modules.service.interfaces.FoodService;
 import com.github.angel.raa.modules.service.interfaces.IngredientService;
 import com.github.angel.raa.modules.service.interfaces.MenuService;
@@ -19,9 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class MenuServiceImpl implements MenuService {
     private final MenuRepository menuRepository;
+    private final UserRepository userRepository;
     private final IngredientService ingredientService;
     private final FoodService foodService;
 
@@ -61,6 +62,12 @@ public class MenuServiceImpl implements MenuService {
             }
         }
         return res;
+    }
+
+    @Override
+    public List<MenuDTO> getMenusByCollect(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getCollectedMenus().stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
     @Override
@@ -115,6 +122,25 @@ public class MenuServiceImpl implements MenuService {
         }
         menuRepository.save(menu);
         return Response.builder().message("Menu successfully updated").code(200).error(false).build();
+    }
+
+    @Override
+    public Response collectMenu(@NonNull Long id, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Menu menu = menuRepository.findById(id).orElseThrow(() -> new MenuNotFoundException("Employee not found ", true));
+        user.getCollectedMenus().add(menu);
+        userRepository.save(user);
+        return Response.builder().message("Menu successfully collected").code(200).error(false).build();
+    }
+
+    @Override
+    public Response uncollectMenu(@NonNull Long id, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        List<Menu> collectedMenus = user.getCollectedMenus();
+        collectedMenus.removeIf(menu -> menu.getId().equals(id));
+        user.setCollectedMenus(collectedMenus); // 重新设置更新后的收藏菜单列表
+        userRepository.save(user); // 保存对用户对象的更改
+        return Response.builder().message("Menu successfully uncollected").code(200).error(false).build();
     }
 
     @Override

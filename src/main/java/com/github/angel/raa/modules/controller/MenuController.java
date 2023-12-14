@@ -12,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Validated
 @RestController
@@ -40,6 +41,10 @@ public class MenuController {
     public ResponseEntity<List<MenuDTO>> getMenusByInput(@PathVariable(value = "input") String input){
         return ResponseEntity.ok(menuService.getMenusByInput(input));
     }
+    @GetMapping("/menus-by-collect/{userId}")
+    public ResponseEntity<List<MenuDTO>> getMenusByCollect(@PathVariable Long userId){
+        return ResponseEntity.ok(menuService.getMenusByCollect(userId));
+    }
 
     @PostMapping("/create-menu")
     public ResponseEntity<Response> createMenu(@Valid @RequestBody MenuDTO menu) {
@@ -51,6 +56,15 @@ public class MenuController {
         return ResponseEntity.ok(menuService.updateMenu(id, menu));
     }
 
+    @PutMapping("/collect-menu/{id}/{userId}")
+    public ResponseEntity<Response> collectMenu(@PathVariable Long id,@PathVariable Long userId) {
+        return ResponseEntity.ok(menuService.collectMenu(id, userId));
+    }
+
+    @PutMapping("/uncollect-menu/{id}/{userId}")
+    public ResponseEntity<Response> uncollectMenu(@PathVariable Long id,@PathVariable Long userId) {
+        return ResponseEntity.ok(menuService.uncollectMenu(id, userId));
+    }
 
     @DeleteMapping("/delete-menu/{id}")
     public ResponseEntity<Response> deleteMenu(@PathVariable Long id) {

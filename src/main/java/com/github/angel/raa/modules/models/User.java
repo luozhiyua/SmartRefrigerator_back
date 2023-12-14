@@ -1,5 +1,6 @@
 package com.github.angel.raa.modules.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,4 +25,8 @@ public class User implements Serializable {
     private String username;
     @Column
     private String password;
+
+    @JsonManagedReference
+    @OneToMany
+    private List<Menu> collectedMenus;
 }
