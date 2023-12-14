@@ -339,7 +339,7 @@ http://localhost:8080/menu/menus-by-collect/1
 
 ### 3. UserController
 
-#### 3.1 GET: 用户登录
+#### 3.1 POST: 用户登录
 
 路径：http://localhost:8080/user/login
 
