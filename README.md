@@ -35,6 +35,7 @@ boolean mainIngredient;
 //所有属性
 Long id;
 String name;
+String userId;
 //Date格式必须为 YYYY-MM-DD
 Date freshDate;
 String quantity;
@@ -43,12 +44,13 @@ Category category
 String address
 ```
 
-json格式举例：
+json格式举例（id项可写可不写，写了也没用....）：
 
 ```json
 {
     "id": 1,
     "name": "鸡肉",
+    "userId":"1",
     "freshDate": "2023-02-12",
     "quantity": "3块",
     "category": "MEAT",
@@ -110,6 +112,24 @@ json格式举例：
 }
 ```
 
+### 5. User类
+
+````java
+Long id;
+private String username;
+private String password;
+````
+
+json格式举例（同样，id可写可不写）：
+
+```json
+{
+    "id": 1,
+    "username": "张三",
+    "password":"12345"
+}
+```
+
 ### 
 
 
@@ -120,25 +140,25 @@ json格式举例：
 
 #### 1.1 GET:查询所有食物（按保质期排序）
 
-路径：http://localhost:8080/food/foods-by-date
+路径：http://localhost:8080/food/foods-by-date/{userId}
 
 返回类型：List\<Food>
 
 #### 1.2 GET:查询特定种类的食物
 
-路径：http://localhost:8080/food/foods-by-category/{category}
+路径：http://localhost:8080/food/foods-by-category/{category}/{userId}
 
 返回类型：List\<Food>
 
 示例：
 
 ```java
-http://localhost:8080/food/foods-by-category/FRUIT
+http://localhost:8080/food/foods-by-category/FRUIT/1
 ```
 
 #### 1.3 GET:输入字符串查询相关食物
 
-路径：http://localhost:8080/food/foods-by-input/{input}
+路径：http://localhost:8080/food/foods-by-input/{input}/{userId}
 
 返回类型：List\<Food>
 
@@ -146,7 +166,7 @@ http://localhost:8080/food/foods-by-category/FRUIT
 
 ```java
 //会查出含“鸡”的所有食物，鸡肉、鸡蛋等
-http://localhost:8080/food/foods-by-input/鸡
+http://localhost:8080/food/foods-by-input/鸡/1
 ```
 
 #### 1.4 GET:根据ID查找食物
@@ -172,7 +192,7 @@ http://localhost:8080/food/foods-by-category/1
 //成功
 {
     "message": "Food successfully add",
-    "code": 200,
+    "code": 201,
     "error": false
 }
 ```
@@ -254,13 +274,13 @@ http://localhost:8080/menu/menu-by/1
 
 #### 2.5 GET:根据用户输入查找菜谱
 
-路径：http://localhost:8080/menu/menus-by-input/{input}
+路径：http://localhost:8080/menu/menus-by-input/{input}/{userId}
 
 示例：
 
 ```java
 //会检索出所有名字中带“鸡”的菜谱以及用料中含“鸡”的菜谱
-http://localhost:8080/menu/menus-by-input/鸡
+http://localhost:8080/menu/menus-by-input/鸡/1
 ```
 
 #### 2.6 POST:添加菜谱（后端自用）
@@ -294,4 +314,61 @@ http://localhost:8080/menu/update-menu/1
 ```java
 http://localhost:8080/menu/delete-menu/1
 ```
+
+
+
+### 3. UserController
+
+#### 3.1 GET: 用户登录
+
+路径：http://localhost:8080/user/login
+
+消息体内容举例：
+
+```json
+{
+    "username": "张三",
+    "password":"12345"
+}
+```
+
+如果登录成功，返回的消息体内容如下（返回的就是userId），状态码为200：
+
+```json
+3
+```
+
+如果用户名不存在，返回-2，状态码为404；
+
+如果密码错误，返回-1，状态码为403；
+
+#### 3.2 POST: 用户注册
+
+路径：http://localhost:8080/user/registry
+
+消息体内容同3.1。
+
+如果注册成功，返回的消息体内容如下：
+
+```json
+{
+    "message": "User successfully add",
+    "code": 201,
+    "error": false
+}
+```
+
+如果名称已存在，则返回：
+
+```json
+{
+    "message": "Username already exists",
+    "code": 409,
+    "error": false
+}
+```
+
+#### 3.3 DELETE: 删除用户（后端自用）
+
+路径：http://localhost:8080/user/delete-user/{userId}
 

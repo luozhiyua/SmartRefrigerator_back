@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,8 +44,8 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public List<MenuDTO> getAvailableMenus() {
-        List<String> foods = foodService.getAllFoods()
+    public List<MenuDTO> getAvailableMenus(Long userId) {
+        List<String> foods = foodService.getAllFoods(userId)
                 .stream()
                 .map(FoodDTO :: getName)
                 .toList();
@@ -66,7 +68,7 @@ public class MenuServiceImpl implements MenuService {
 //        List<MenuDTO> res = new ArrayList<>();
         List<MenuDTO> res1 = getAllMenus()
                 .stream()
-                .filter(t -> t.getName().contains(input))
+                .filter(t -> t.getName().contains(URLDecoder.decode(input, StandardCharsets.UTF_8)))
                 .toList();
         List<MenuDTO> res2 = getAllMenus()
                 .stream()
@@ -74,7 +76,7 @@ public class MenuServiceImpl implements MenuService {
                         .stream()
                         .filter(Ingredient::isMainIngredient)
                         .map(Ingredient::getName)
-                        .toList().contains(input))
+                        .toList().contains(URLDecoder.decode(input, StandardCharsets.UTF_8)))
                 .toList();
 
         return Stream.of(res1, res2)

@@ -26,9 +26,9 @@ public class MenuController {
     }
 
     //推荐菜谱
-    @GetMapping("/recommend-menu")
-    public ResponseEntity<List<MenuDTO>> getRecommendMenus(){
-        return ResponseEntity.ok(menuService.getAvailableMenus());
+    @GetMapping("/recommend-menu/{userId}")
+    public ResponseEntity<List<MenuDTO>> getRecommendMenus(@PathVariable(value = "userId") Long userId){
+        return ResponseEntity.ok(menuService.getAvailableMenus(userId));
     }
 
     @GetMapping("/menu-by/{menuId}")
