@@ -125,6 +125,13 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
+    public Boolean getMenuCollection(@NonNull Long id, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Menu menu = menuRepository.findById(id).orElseThrow(() -> new MenuNotFoundException("Employee not found ", true));
+        return user.getCollectedMenus().contains(menu);
+    }
+
+    @Override
     public Response collectMenu(@NonNull Long id, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Menu menu = menuRepository.findById(id).orElseThrow(() -> new MenuNotFoundException("Employee not found ", true));

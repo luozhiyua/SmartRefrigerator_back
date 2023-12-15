@@ -46,6 +46,11 @@ public class MenuController {
         return ResponseEntity.ok(menuService.getMenusByCollect(userId));
     }
 
+    @GetMapping("/collection/{id}/{userId}")
+    public ResponseEntity<Boolean> getMenuCollection(@PathVariable Long id,@PathVariable Long userId) {
+        return ResponseEntity.ok(menuService.getMenuCollection(id, userId));
+    }
+
     @PostMapping("/create-menu")
     public ResponseEntity<Response> createMenu(@Valid @RequestBody MenuDTO menu) {
         return ResponseEntity.status(HttpStatus.CREATED).body(menuService.saveMenu(menu));

@@ -20,6 +20,8 @@ public interface MenuService {
 
     Response saveMenu(@NonNull MenuDTO body);
 
+    Boolean getMenuCollection(@NonNull Long id, Long userId);
+
     Response updateMenu(@NonNull Long id, MenuDTO body);
 
     Response collectMenu(@NonNull Long id, Long userId);
