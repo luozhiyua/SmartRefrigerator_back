@@ -64,10 +64,11 @@ public class FoodServiceImpl implements FoodService {
     @Override
     @Transactional(readOnly = true)
     public List<FoodDTO> getAllFoods(Long userId) {
-        return foodRepository.findAll()
-                .stream()
+        List<FoodDTO> res = foodRepository
+                .findAll().stream()
                 .map((dto) -> new FoodDTO(dto.getId(), dto.getName(), dto.getUserId(), dto.getFreshDate(), dto.getQuantity(), dto.getCategory(), dto.getAddress()))
                 .toList();
+        return res;
     }
 
     @Override

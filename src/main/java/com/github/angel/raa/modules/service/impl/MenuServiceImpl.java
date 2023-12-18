@@ -57,9 +57,13 @@ public class MenuServiceImpl implements MenuService {
                     .filter(Ingredient::isMainIngredient)
                     .map(Ingredient :: getName)
                     .toList();
-            if (foods.containsAll(needs)){
-                res.add(menu);
+            for (String singleItem: needs){
+                if (foods.contains(singleItem)){
+                    res.add(menu);
+                    break;
+                }
             }
+
         }
         return res;
     }
