@@ -5,6 +5,7 @@ import com.github.angel.raa.modules.exception.UserNotFoundException;
 import com.github.angel.raa.modules.models.User;
 import com.github.angel.raa.modules.repository.UserRepository;
 import com.github.angel.raa.modules.service.interfaces.UserService;
+import com.github.angel.raa.modules.utils.HashFunction;
 import com.github.angel.raa.modules.utils.Response;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,7 @@ public class UserServiceImpl implements UserService {
         if (userOptional.isPresent()) {
             // 找到了用户
             User user = userOptional.get();
-            if (!Objects.equals(user.getPassword(), inputPassword)) {
+            if (!Objects.equals(user.getPassword(), HashFunction.hash(inputPassword))) {
                 //用户密码不正确
                 return (long) -1;
             }
@@ -66,7 +67,7 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setId(dto.getId());
         user.setUsername(dto.getUsername());
-        user.setPassword(dto.getPassword());
+        user.setPassword(HashFunction.hash(dto.getPassword()));
         return user;
     }
 }
