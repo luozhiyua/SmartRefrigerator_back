@@ -7,9 +7,12 @@ import com.github.angel.raa.modules.models.Food;
 import com.github.angel.raa.modules.repository.FoodRepository;
 import com.github.angel.raa.modules.service.interfaces.FoodService;
 import com.github.angel.raa.modules.utils.Response;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
@@ -24,7 +27,9 @@ public class FoodServiceImpl implements FoodService {
     private final FoodRepository foodRepository;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
+    @RateLimiter(name = "getFoodsByDateRateLimiter")
+    @CircuitBreaker(name = "getFoodsByDateCircuitBreaker", fallbackMethod = "foodDefaultFallbackList")
     public List<FoodDTO> getFoodsByDate(Long userId) {
         List<FoodDTO> foodList = foodRepository.findAll()
                 .stream()
@@ -42,7 +47,9 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
+    @RateLimiter(name = "getFoodsByNameRateLimiter")
+    @CircuitBreaker(name = "getFoodsByNameCircuitBreaker", fallbackMethod = "foodDefaultFallbackList")
     public List<FoodDTO> getFoodsByName(Long userId) {
         List<FoodDTO> foodList = foodRepository.findAll()
                 .stream()
@@ -62,7 +69,9 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
+    @RateLimiter(name = "getAllFoodsRateLimiter")
+    @CircuitBreaker(name = "getAllFoodsCircuitBreaker", fallbackMethod = "foodDefaultFallbackList")
     public List<FoodDTO> getAllFoods(Long userId) {
         List<FoodDTO> res = foodRepository
                 .findAll().stream()
@@ -72,6 +81,9 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
+    @RateLimiter(name = "getFoodByInputRateLimiter")
+    @CircuitBreaker(name = "getFoodByInputCircuitBreaker", fallbackMethod = "foodDefaultFallbackList")
     public List<FoodDTO> getFoodByInput(String input, Long userId){
         System.out.println(URLDecoder.decode(input, StandardCharsets.UTF_8));
         return foodRepository.findAll()
@@ -83,6 +95,9 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
+    @RateLimiter(name = "getFoodsByCategoryRateLimiter")
+    @CircuitBreaker(name = "getFoodsByCategoryCircuitBreaker", fallbackMethod = "foodDefaultFallbackList")
     public List<FoodDTO> getFoodsByCategory(Category category, Long userId) {
         return foodRepository.findAll()
                 .stream()
@@ -93,12 +108,19 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public FoodDTO getFoodItemsById(@NonNull Long id) {
         Food food = foodRepository.findById(id).orElseThrow(() -> new FoodNotFoundException("Food not found ", true));
         return convertToDto(food);
     }
 
+    // Fallback method for CircuitBreaker
+    private List<FoodDTO> foodDefaultFallbackList(Long userId, Exception ex) {
+        return Collections.emptyList();
+    }
+
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Response editFoodItem(@NonNull Long id, FoodDTO body) {
         Food food = foodRepository.findById(id).orElseThrow(() -> new FoodNotFoundException("Food not found ", true));
         food.setName(body.getName());
@@ -112,6 +134,7 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Response addFoodItem(@NonNull FoodDTO body) {
         Food food = convertToEntity(body);
         foodRepository.save(food);
@@ -119,6 +142,7 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Response deleteFoodItem(@NonNull Long id) {
         Food food = foodRepository.findById(id).orElseThrow(() -> new FoodNotFoundException("Food not found ", true));
         foodRepository.delete(food);

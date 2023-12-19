@@ -14,9 +14,12 @@ import com.github.angel.raa.modules.service.interfaces.FoodService;
 import com.github.angel.raa.modules.service.interfaces.IngredientService;
 import com.github.angel.raa.modules.service.interfaces.MenuService;
 import com.github.angel.raa.modules.utils.Response;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URLDecoder;
@@ -34,7 +37,9 @@ public class MenuServiceImpl implements MenuService {
     private final FoodService foodService;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
+    @RateLimiter(name = "getAllMenusRateLimiter")
+    @CircuitBreaker(name = "getAllMenusCircuitBreaker", fallbackMethod = "menuDefaultFallbackList")
     public List<MenuDTO> getAllMenus() {
         return menuRepository.findAll()
                 .stream()
@@ -45,6 +50,9 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
+    @RateLimiter(name = "getAvailableMenusRateLimiter")
+    @CircuitBreaker(name = "getAvailableMenusCircuitBreaker", fallbackMethod = "menuDefaultFallbackList")
     public List<MenuDTO> getAvailableMenus(Long userId) {
         List<String> foods = foodService.getAllFoods(userId)
                 .stream()
@@ -69,12 +77,20 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
+    @RateLimiter(name = "getMenusByCollectRateLimiter")
+    @CircuitBreaker(name = "getMenusByCollectCircuitBreaker", fallbackMethod = "menuDefaultFallbackList")
     public List<MenuDTO> getMenusByCollect(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         return user.getCollectedMenus().stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
+
+
     @Override
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
+    @RateLimiter(name = "getMenusByInputRateLimiter")
+    @CircuitBreaker(name = "getMenusByInputCircuitBreaker", fallbackMethod = "menuDefaultFallbackList")
     public List<MenuDTO> getMenusByInput(@NonNull String input) {
 //        List<MenuDTO> res = new ArrayList<>();
         List<MenuDTO> res1 = getAllMenus()
@@ -96,15 +112,20 @@ public class MenuServiceImpl implements MenuService {
                 .collect(Collectors.toList());
     }
 
+    // Fallback method for CircuitBreaker
+    private List<MenuDTO> menuDefaultFallbackList(Long userId, Exception ex) {
+        return Collections.emptyList();
+    }
+
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public MenuDTO getMenuById(@NonNull Long id) {
         Menu menu = menuRepository.findById(id).orElseThrow(() -> new MenuNotFoundException("Menu not found ", true));
         return convertToDto(menu);
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Response saveMenu(@NonNull MenuDTO body) {
         Menu menu = convertToEntity(body);
         menuRepository.save(menu);
@@ -112,7 +133,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Response updateMenu(@NonNull Long id, MenuDTO body) {
         Menu menu = menuRepository.findById(id).orElseThrow(() -> new MenuNotFoundException("Menu not found ", true));
         menu.setImage(body.getImage());
@@ -129,6 +150,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public Boolean getMenuCollection(@NonNull Long id, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Menu menu = menuRepository.findById(id).orElseThrow(() -> new MenuNotFoundException("Employee not found ", true));
@@ -136,6 +158,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Response collectMenu(@NonNull Long id, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Menu menu = menuRepository.findById(id).orElseThrow(() -> new MenuNotFoundException("Employee not found ", true));
@@ -145,6 +168,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Response uncollectMenu(@NonNull Long id, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         List<Menu> collectedMenus = user.getCollectedMenus();
@@ -155,7 +179,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Response deleteMenu(@NonNull Long id) {
         Menu menu = menuRepository.findById(id).orElseThrow(() -> new MenuNotFoundException("Employee not found ", true));
         menuRepository.delete(menu);
