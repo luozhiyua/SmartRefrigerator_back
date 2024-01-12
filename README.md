@@ -749,7 +749,7 @@ localhost:8848/nacos
 进入fmise_back_end文件夹
 
 ```
-docker build -t Sentinal .
+docker build -t sentinal .
 ```
 
 如果报错 java.lang.IllegalStateException: Cannot load configuration class: com.alibaba.csp.sentinel.dashboard，可能是因为java版本过高。修改当前文件夹（fmise_back_end）下的DockerFile：
