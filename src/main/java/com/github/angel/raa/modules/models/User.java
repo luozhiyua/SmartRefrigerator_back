@@ -27,6 +27,6 @@ public class User implements Serializable {
     private String password;
 
     @JsonManagedReference
-    @OneToMany
+    @ManyToMany
     private List<Menu> collectedMenus;
 }
