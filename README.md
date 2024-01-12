@@ -1,4 +1,4 @@
-# fmise_back_end 后端使用指南
+# fmise_back_end 后端使用指南（docker部署最终版本）
 
 最终版：2024.1.12
 
@@ -131,11 +131,9 @@ json格式举例（同样，id可写可不写,菜谱list略）：
 }
 ```
 
-### 
 
 
-
-## 接口说明
+## ~~接口说明（单体架构版）~~
 
 ### 1. FoodController
 
@@ -394,11 +392,318 @@ http://localhost:8080/menu/menus-by-collect/1
 
 
 
+## 接口说明（微服务架构版）
+
+### 访问地址
+
+```
+//路径与原路径保持一致
+localhost:8083/{服务名}/{路径}
+```
+
+### 服务名
+
+food-service：nacos-discovery-provider-food
+
+menu-service：nacos-discovery-provider-menu
+
+chat-service：nacos-discovery-provider-chat
+
+user-service：nacos-discovery-provider-user
+
+### 服务接口
+
+### 1. FoodService
+
+#### 1.1 GET:查询所有食物（按保质期排序）
+
+路径：/food/foods-by-date/{userId}
+
+返回类型：List\<Food>
+
+#### 1.2 GET:查询特定种类的食物
+
+路径：/food/foods-by-category/{category}/{userId}
+
+返回类型：List\<Food>
+
+示例：
+
+```java
+/food/foods-by-category/FRUIT/1
+```
+
+#### 1.3 POST:输入字符串查询相关食物
+
+路径：/food/foods-by-input/{userId}
+
+返回类型：List\<Food>
+
+示例：
+
+```java
+//会查出含“鸡”的所有食物，鸡肉、鸡蛋等
+/food/foods-by-input/1
+```
+
+消息体：
+
+```json
+{
+	“input”:"鸡"
+}
+```
+
+
+
+#### 1.4 GET:根据ID查找食物
+
+路径：/food/food-by/{foodId}
+
+返回类型：Food
+
+示例：
+
+```java
+//查询id为1的食物
+/food/foods-by-category/1
+```
+
+#### 1.5 POST:添加食物
+
+路径：/food/add-food
+
+返回类型：
+
+```json
+//成功
+{
+    "message": "Food successfully add",
+    "code": 201,
+    "error": false
+}
+```
+
+示例：
+
+```java
+/food/add-food
+```
+
+消息体类型见food类型的json示例
+
+#### 1.6 PUT:编辑食物信息
+
+路径：/food/edit-food/{foodId}
+
+示例：
+
+```java
+/food/edit-food/1
+```
+
+消息体类型见food类型的json示例
+
+返回类型：
+
+```json
+//成功
+{
+    "message": "Food successfully edit",
+    "code": 201,
+    "error": false
+}
+```
+
+
+
+#### 1.7 DELETE:删除食物
+
+路径：/food/delete-food/{foodId}
+
+示例：
+
+```java
+/food/delete-food/1
+```
+
+返回类型：
+
+```json
+//成功
+{
+    "message": "Food successfully delete",
+    "code": 204,
+    "error": false
+}
+```
+
+### 2. MenuService
+
+#### 2.1 GET:查询所有菜谱
+
+路径：/menu/all-menu
+
+#### 2.2 GET:查询推荐菜谱
+
+路径：/menu/recommend-menu
+
+#### 2.4 GET:根据ID查找菜谱
+
+路径：/menu/menu-by/{menuId}
+示例：
+
+```java
+/menu/menu-by/1
+```
+
+#### 2.5 POST:根据用户输入查找菜谱
+
+路径：/menu/menus-by-input/{userId}
+
+示例：
+
+```java
+//会检索出所有名字中带“鸡”的菜谱以及用料中含“鸡”的菜谱
+/menu/menus-by-input/1
+```
+
+消息体：
+
+消息体：
+
+```json
+{
+	“input”:"鸡"
+}
+```
+
+
+
+#### 2.6 POST:添加菜谱（后端自用）
+
+路径：/menu/create-menu
+
+示例：
+
+```java
+/menu/create-menu
+```
+
+消息体类型见menu类型的json示例
+
+#### 2.7 PUT:编辑菜谱（后端自用）
+
+路径：/menu/update-menu/{id}
+
+示例：
+
+```java
+/menu/update-menu/1
+```
+
+消息体类型见menu类型的json示例
+
+#### 2.8 DELETE:删除菜谱（后端自用）
+
+路径：/menu/delete-menu/{id}
+
+```java
+/menu/delete-menu/1
+```
+
+#### 2.9 PUT:收藏菜谱
+
+路径：/menu/collect-menu/{id}/{userId}
+
+```java
+/menu/collect-menu/1/1
+```
+
+#### 2.10 PUT:取消菜谱收藏
+
+/menu/uncollect-menu/{id}/{userId}
+
+```java
+/menu/uncollect-menu/1/1
+```
+
+#### 2.11 GET:查询收藏菜谱
+
+路径：/menu/menus-by-collect/{userId}
+
+```java
+/menu/menus-by-collect/1
+```
+
+### 3. UserService
+
+#### 3.1 POST: 用户登录
+
+路径：/user/login
+
+消息体内容举例：
+
+```json
+{
+    "username": "13012341234",
+    "password":"12345"
+}
+```
+
+如果登录成功，返回的消息体内容如下（返回的就是userId），状态码为200：
+
+```json
+3
+```
+
+如果用户名不存在，返回-2，状态码为404；
+
+如果密码错误，返回-1，状态码为403；
+
+#### 3.2 POST: 用户注册
+
+路径：/user/registry
+
+消息体内容同3.1。
+
+如果注册成功，返回的消息体内容如下：
+
+```json
+{
+    "message": "User successfully add",
+    "code": 201,
+    "error": false
+}
+```
+
+如果名称已存在，则返回：
+
+```json
+{
+    "message": "Username already exists",
+    "code": 409,
+    "error": false
+}
+```
+
+#### 3.3 DELETE: 删除用户（后端自用）
+
+路径：/user/delete-user/{userId}
+
+### 4. ChatService
+
+#### 4.1 POST:向大语言模型发送消息
+
+路径：/qa/ques
+
+
+
 ## 部署说明
 
 ### 0. 打包
 
-进入每一个子模块，进行package操作，并根据生成的jar包的名字，动态修改dockerfile中的指令
+进入每一个子模块，进行package操作，并**根据生成的jar包的名字，动态修改dockerfile中的指令**
 
 （生成的jar包在target目录下）
 
@@ -406,6 +711,8 @@ http://localhost:8080/menu/menus-by-collect/1
 #如gateway子模块的dockerfile
 COPY {生成jar包的名字} gateway-service-0.0.1-SNAPSHOT.jar
 ```
+
+![package操作](.\package操作.jpg)
 
 ### 1. nacos
 
